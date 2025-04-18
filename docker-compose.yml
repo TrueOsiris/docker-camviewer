@@ -1,14 +1,3 @@
-# docker-camviewer
-basic RTSP stream viewer
-
-```
-docker run -d -p 8080:80 \
-  -e STREAM1="rtsp://camera1.example.com/stream" \
-  -e STREAM2="rtsp://camera2.example.com/stream" \
-  trueosiris/camviewer
-```
-
-```
 services:
   camviewer:
     image: trueosiris/camviewer:latest
@@ -28,4 +17,3 @@ services:
     labels:
       org.opencontainers.image.source: "https://github.com/TrueOsiris/docker-camviewer"
     restart: unless-stopped
-```

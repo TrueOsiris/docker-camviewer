@@ -1,0 +1,60 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RTSP Streams</title>
+  <style>
+    /* Responsive grid container for video streams */
+    .stream-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .stream-card {
+      text-align: center;
+    }
+    .stream-card video {
+      width: 100%;
+      height: auto;
+      background: #000; /* black background for video area */
+    }
+    .stream-title {
+      margin: 0.5em 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Live Streams</h1>
+  <div class="stream-container">
+    {% for stream in streams %}
+      <div class="stream-card">
+        <!-- Video element for each stream, HLS source via data-src attribute -->
+        <video id="video{{ stream.id }}" controls data-src="{{ url_for('static', filename=stream.playlist) }}"></video>
+        <div class="stream-title">Stream {{ stream.id }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Include hls.js library for HLS playback -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (Hls.isSupported()) {
+        // Use HLS.js for browsers that need it
+        document.querySelectorAll('video[data-src]').forEach(function(video) {
+          var hls = new Hls();
+          hls.loadSource(video.dataset.src);
+          hls.attachMedia(video);
+        });
+      } else {
+        // Fallback for Safari and others with native HLS support
+        document.querySelectorAll('video[data-src]').forEach(function(video) {
+          video.src = video.dataset.src;
+        });
+      }
+    });
+  </script>
+</body>
+</html>
