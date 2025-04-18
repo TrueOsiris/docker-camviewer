@@ -6,25 +6,27 @@ RUN apt-get update && \
     apt-get install -y apache2 apache2-utils libapache2-mod-wsgi-py3 ffmpeg && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Enable the mod_wsgi module (and mod_env for PassEnv if not already enabled)
+# Enable required Apache modules
 RUN a2enmod wsgi env
 
-# Set up the application directory
+# Set working directory
 WORKDIR /app
-COPY app.py app.wsgi requirements.txt ./  
-COPY static/ ./static/             # static folder for HLS segments (initially empty or with placeholder)
-COPY templates/ ./templates/       # HTML template(s)
-COPY apache_flask.conf /etc/apache2/sites-available/000-default.conf
 
-# Install Python dependencies (Flask)
+# Copy application files from app/
+COPY app/app.py app/app.wsgi app/requirements.txt ./
+COPY app/templates ./templates
+COPY app/static ./static
+COPY app/apache-flask.conf /etc/apache2/sites-available/000-default.conf
+
+# Install Python requirements
 RUN pip install -r requirements.txt
 
-# Expose port 80 for web service
-EXPOSE 80
-
-# Copy the entrypoint script and make it executable
+# Copy entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Start the entrypoint script (which launches FFmpeg processes and Apache)
+# Expose the web port
+EXPOSE 80
+
+# Start script
 CMD ["/entrypoint.sh"]
